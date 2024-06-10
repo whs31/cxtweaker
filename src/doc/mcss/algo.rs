@@ -1,7 +1,12 @@
 use colored::Colorize;
 use crate::pb_print;
 
-const ALLOWED_KINDS: [clang::EntityKind; 3] = [clang::EntityKind::FunctionTemplate, clang::EntityKind::FunctionDecl, clang::EntityKind::Method];
+const ALLOWED_KINDS: [clang::EntityKind; 4] = [
+  clang::EntityKind::FunctionTemplate,
+  clang::EntityKind::FunctionDecl,
+  clang::EntityKind::Method,
+  clang::EntityKind::AnnotateAttr
+];
 
 pub fn fn_dump(entity: &clang::Entity) -> bool
 {
@@ -12,6 +17,7 @@ pub fn fn_dump(entity: &clang::Entity) -> bool
       clang::EntityKind::FunctionTemplate => "template".to_string().bright_magenta(),
       clang::EntityKind::FunctionDecl => "function".to_string().bright_blue(),
       clang::EntityKind::Method => "method".to_string().bright_cyan(),
+      clang::EntityKind::AnnotateAttr => "attribute".to_string().bright_green(),
       _ => "unknown".to_string().bright_red()
     }).bold(),
     entity.get_name().unwrap_or("<unknown>".to_string()).bold().green(),

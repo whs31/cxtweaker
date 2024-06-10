@@ -89,7 +89,7 @@ impl Parser<'_>
     );
     for entity in entities {
       match entity_fn(&entity) {
-        true => self.stored_entities.push(entity.clone()),
+        true => (),
         false => ()
       }
     }
