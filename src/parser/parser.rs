@@ -38,7 +38,8 @@ impl Parser
     Ok(Parser { clang, opts })
   }
 
-  pub fn parse(&self, args: &ProcessArgs) -> anyhow::Result<()>
+  // takes entity_fn and applies it to all found entities
+  pub fn parse(&self, args: &ProcessArgs, entity_fn: fn(&clang::Entity)) -> anyhow::Result<()>
   {
     let pb = indicatif::ProgressBar::new(self.opts.options.len() as u64)
       .with_message("⌛ processing code")
@@ -50,7 +51,7 @@ impl Parser
     pb.set_draw_target(indicatif::ProgressDrawTarget::stdout_with_hz(30));
     pb.enable_steady_tick(Duration::from_millis(100));
     for opt in &self.opts.options {
-      self.parse_entry(opt, args)?;
+      self.parse_entry(opt, args, entity_fn)?;
       pb.inc(1);
       pb.set_message(format!("⌛ processing {}", opt.source.file_name().unwrap().to_os_string().into_string().unwrap().bold().bright_magenta()));
     }
@@ -58,7 +59,7 @@ impl Parser
     Ok(())
   }
 
-  fn parse_entry(&self, opt: &CompileOption, args: &ProcessArgs) -> anyhow::Result<()>
+  fn parse_entry(&self, opt: &CompileOption, args: &ProcessArgs, entity_fn: fn(&clang::Entity)) -> anyhow::Result<()>
   {
     anyhow::ensure!(opt.source.exists(), "file not found: {}", opt.source.as_path().display());
     anyhow::ensure!(opt.source.is_file(), "not a file: {}", opt.source.as_path().display());
@@ -81,6 +82,15 @@ impl Parser
       entities.len().to_string().bold().bright_green(),
       opt.source.file_name().unwrap().to_os_string().into_string().unwrap().bold().cyan()
     );
+    for entity in entities {
+      entity_fn(&entity);
+      // if entity.get_kind() == clang::EntityKind::FunctionDecl
+      //   || entity.get_kind() == clang::EntityKind::Method
+      //   || entity.get_kind() == clang::EntityKind::FunctionTemplate
+      // {
+      //   pb_print!("{}", entity.get_display_name().unwrap_or("<unknown>".to_string()));
+      // }
+    }
     Ok(())
   }
 
@@ -93,7 +103,9 @@ impl Parser
   {
     let mut entities = vec![entity.clone()];
     for child in entity.get_children() {
-      entities.append(&mut self.entity_children_all(child)?);
+      if !child.is_in_system_header() {
+        entities.append(&mut self.entity_children_all(child)?);
+      }
     }
     Ok(entities)
   }

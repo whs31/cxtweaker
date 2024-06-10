@@ -15,7 +15,9 @@ fn try_main() -> anyhow::Result<()>
   match &args.command {
     Some(args::Command::Process(argv)) => {
       let parser = parser::Parser::new(argv, false)?;
-      parser.parse(argv)?;
+      parser.parse(argv, |entity| {
+        //println!("{:?}", entity.get_name());
+      })?;
     }
     None => {
       return Err(anyhow::anyhow!("no command specified. see --help"));
