@@ -13,9 +13,9 @@ fn try_main() -> anyhow::Result<()>
     core::cli::print_version_and_exit();
   }
 
-  let parser = parser::Parser::new()?;
   match &args.command {
     Some(args::Command::Process(argv)) => {
+      let parser = parser::Parser::new(argv)?;
       parser.parse_file(Path::new(&argv.input))?;
     }
     None => {
@@ -27,6 +27,7 @@ fn try_main() -> anyhow::Result<()>
 
 fn main()
 {
+  std::env::set_var("RUST_BACKTRACE", "1");
   try_main()
     .map_err(|e| {
       core::cli::print_error_and_exit(e);

@@ -25,5 +25,6 @@ pub fn print_version_and_exit() -> !
 pub fn print_error_and_exit(err: anyhow::Error) -> !
 {
   eprintln!("{}: {}", "fatal error".to_string().bold().red(), err);
+  eprintln!("{}: {}", "backtrace".to_string().bold().red(), err.backtrace());
   std::process::exit(1);
 }
