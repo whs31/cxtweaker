@@ -8,12 +8,13 @@ use crate::pb_print;
 pub struct Parser
 {
   clang: Box<clang::Clang>,
-  opts: CompileOptions
+  opts: CompileOptions,
+  ignore_kind: Option<Vec<clang::EntityKind>>
 }
 
 impl Parser
 {
-  pub fn new(args: &ProcessArgs, verbose: bool) -> anyhow::Result<Self>
+  pub fn new(args: &ProcessArgs, verbose: bool, ignore_kind: Option<Vec<clang::EntityKind>>) -> anyhow::Result<Self>
   {
     let clang = match clang::Clang::new() {
       Ok(c) => Box::new(c),
@@ -35,7 +36,7 @@ impl Parser
     if verbose {
       opts.pretty_print();
     }
-    Ok(Parser { clang, opts })
+    Ok(Parser { clang, opts, ignore_kind })
   }
 
   // takes entity_fn and applies it to all found entities
@@ -103,9 +104,11 @@ impl Parser
   {
     let mut entities = vec![entity.clone()];
     for child in entity.get_children() {
-      if !child.is_in_system_header() {
-        entities.append(&mut self.entity_children_all(child)?);
+      if child.is_in_system_header() { continue }
+      if let Some(ignore_kind) = &self.ignore_kind {
+        if ignore_kind.contains(&child.get_kind()) { continue }
       }
+      entities.append(&mut self.entity_children_all(child)?);
     }
     Ok(entities)
   }

@@ -3,8 +3,8 @@ use crate::pb_print;
 
 pub fn ast_dump(entity: &clang::Entity) -> ()
 {
-  pb_print!("  [{:^20}] {:<50} in file <{}>",
-    format!("{:?}", entity.get_kind()).bold().yellow(),
+  pb_print!("  [{:^24}] {:<50} in file <{}>",
+    format!("{:?}", entity.get_kind()).bold(),
     entity.get_name().unwrap_or("<unknown>".to_string()).bold().green(),
     match entity.get_location() {
       Some(loc) => {

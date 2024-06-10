@@ -15,7 +15,7 @@ fn try_main() -> anyhow::Result<()>
 
   match &args.command {
     Some(args::Command::Process(argv)) => {
-      let parser = parser::Parser::new(argv, false)?;
+      let parser = parser::Parser::new(argv, false, None)?;
       parser.parse(argv, algo::misc::ast_dump)?;
     }
     None => {
