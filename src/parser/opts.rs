@@ -1,6 +1,35 @@
 use std::path::{Path, PathBuf};
 use colored::Colorize;
 use crate::parser::json::{CMakeCompileCommand, CMakeCompileCommands};
+// flags
+bitflags::bitflags! {
+  #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
+  pub struct CompileOptionFlags: u32
+  {
+    const INCLUDES           = 0b00000001;
+    const INCLUDES_SYSTEM    = 0b00000010;
+    const DEFINITIONS        = 0b00000100;
+    const WARNINGS           = 0b00001000;
+    const WARNINGS_AS_ERRORS = 0b00010000;
+    const STANDARD           = 0b00100000;
+    const SOURCE             = 0b01000000;
+    const OUTPUT             = 0b10000000;
+
+    const ALL = Self::INCLUDES.bits()
+      | Self::INCLUDES_SYSTEM.bits()
+      | Self::DEFINITIONS.bits()
+      | Self::WARNINGS.bits()
+      | Self::WARNINGS_AS_ERRORS.bits()
+      | Self::STANDARD.bits()
+      | Self::SOURCE.bits()
+      | Self::OUTPUT.bits();
+
+    const REQUIRED_FOR_INDEXING = Self::INCLUDES.bits()
+      | Self::INCLUDES_SYSTEM.bits()
+      | Self::DEFINITIONS.bits()
+      | Self::STANDARD.bits();
+  }
+}
 
 #[derive(Debug, Clone)]
 pub struct CompileOptions
@@ -175,6 +204,38 @@ impl CompileOption
     println!("\toutput: {}", self.output.display().to_string().dimmed().cyan());
     println!("\tpwd: {}", self.pwd.display().to_string().dimmed().blue());
   }
+
+  pub fn as_argument_array(&self, flags: CompileOptionFlags) -> Vec<String>
+  {
+    let mut args = vec!["-x".to_string(), "c++".to_string()];
+    if flags.contains(CompileOptionFlags::STANDARD) {
+      args.push(format!("-std={}", self.standard));
+    }
+    if flags.contains(CompileOptionFlags::WARNINGS) && !self.warnings.is_empty() {
+      for warn in &self.warnings {
+        args.push(format!("-W{}", warn));
+      }
+    }
+    if flags.contains(CompileOptionFlags::WARNINGS_AS_ERRORS) && self.warnings_as_errors {
+      args.push("-Werror".to_string());
+    }
+    if flags.contains(CompileOptionFlags::DEFINITIONS) && !self.definitions.is_empty() {
+      for def in &self.definitions {
+        args.push(format!("-D{}={}", def.0, def.1));
+      }
+    }
+    if flags.contains(CompileOptionFlags::INCLUDES) && !self.includes.is_empty() {
+      for inc in &self.includes {
+        args.push(format!("-I{}", inc.display().to_string()));
+      }
+    }
+    if flags.contains(CompileOptionFlags::INCLUDES_SYSTEM) && !self.includes_system.is_empty() {
+      for inc in &self.includes_system {
+        args.push(format!("-isystem {}", inc.display().to_string()));
+      }
+    }
+    args
+  }
 }
 
 #[cfg(test)]
@@ -213,5 +274,60 @@ mod tests
     assert_eq!(got.warnings[1], "extra".to_string());
     assert_eq!(got.warnings[2], "pedantic".to_string());
     assert_eq!(got.warnings_as_errors, true);
+
+    assert_eq!(got.as_argument_array(CompileOptionFlags::ALL), [
+      "-x", "c++",
+      "-std=c++20",
+      "-Wall", "-Wextra", "-Wpedantic", "-Werror",
+      "-DCMAKE_PROJECT_VERSION_MAJOR=1",
+      "-DCMAKE_PROJECT_VERSION_MINOR=1",
+      "-DCMAKE_PROJECT_VERSION_PATCH=3",
+      "-DCMAKE_TARGET_NAME=floppy",
+      "-DFLOPPY_LIBRARY=1",
+      "-ID:/dev/my/floppy/build/Debug",
+      "-ID:/dev/my/floppy",
+      "-ID:/dev/my/floppy/include",
+      "-ID:/dev/my/floppy/src/c++",
+      "-isystem C:/Users/User/.conan2/p/fmtcdb79a57b9013/p/include",
+      "-isystem C:/Users/User/.conan2/p/b/winap9939095afc6a5/p/include"
+    ]);
+
+    assert_eq!(got.as_argument_array(CompileOptionFlags::INCLUDES
+      | CompileOptionFlags::INCLUDES_SYSTEM
+      | CompileOptionFlags::DEFINITIONS
+      | CompileOptionFlags::STANDARD
+    ), [
+      "-x", "c++",
+      "-std=c++20",
+      "-DCMAKE_PROJECT_VERSION_MAJOR=1",
+      "-DCMAKE_PROJECT_VERSION_MINOR=1",
+      "-DCMAKE_PROJECT_VERSION_PATCH=3",
+      "-DCMAKE_TARGET_NAME=floppy",
+      "-DFLOPPY_LIBRARY=1",
+      "-ID:/dev/my/floppy/build/Debug",
+      "-ID:/dev/my/floppy",
+      "-ID:/dev/my/floppy/include",
+      "-ID:/dev/my/floppy/src/c++",
+      "-isystem C:/Users/User/.conan2/p/fmtcdb79a57b9013/p/include",
+      "-isystem C:/Users/User/.conan2/p/b/winap9939095afc6a5/p/include"
+    ]);
+
+    assert_eq!(got.as_argument_array(
+      CompileOptionFlags::INCLUDES
+      | CompileOptionFlags::INCLUDES_SYSTEM
+      | CompileOptionFlags::DEFINITIONS
+      | CompileOptionFlags::STANDARD
+    ), got.as_argument_array(
+      CompileOptionFlags::ALL
+      &! CompileOptionFlags::WARNINGS
+      &! CompileOptionFlags::WARNINGS_AS_ERRORS
+    ));
+    assert_eq!(got.as_argument_array(
+      CompileOptionFlags::INCLUDES
+        | CompileOptionFlags::INCLUDES_SYSTEM
+        | CompileOptionFlags::DEFINITIONS
+        | CompileOptionFlags::STANDARD
+    ), got.as_argument_array(CompileOptionFlags::REQUIRED_FOR_INDEXING)
+    );
   }
 }
