@@ -85,12 +85,6 @@ impl Parser
     );
     for entity in entities {
       entity_fn(&entity);
-      // if entity.get_kind() == clang::EntityKind::FunctionDecl
-      //   || entity.get_kind() == clang::EntityKind::Method
-      //   || entity.get_kind() == clang::EntityKind::FunctionTemplate
-      // {
-      //   pb_print!("{}", entity.get_display_name().unwrap_or("<unknown>".to_string()));
-      // }
     }
     Ok(())
   }

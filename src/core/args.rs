@@ -15,7 +15,10 @@ pub struct Args
 pub enum Command
 {
   /// Process file or directory
-  Process(ProcessArgs)
+  Process(ProcessArgs),
+
+  /// Generate documentation
+  Doc(DocArgs)
 }
 
 #[derive(clap::Args, Debug, Clone)]
@@ -29,4 +32,36 @@ pub struct ProcessArgs
 
   /// Ignore tests
   #[arg(long)] pub ignore_tests: bool
+}
+
+#[derive(clap::Args, Debug, Clone)]
+pub struct DocArgs
+{
+  /// Input build directory with compile-commands.json
+  pub input: String,
+
+  /// Additional include paths
+  #[arg(short='I', long)] pub include_flags: Option<Vec<String>>,
+
+  /// Ignore tests
+  #[arg(long)] pub ignore_tests: bool,
+
+  /// Output format. Can be `markdown` or `m.css`
+  #[arg(short, long, default_value_t = String::from("m.css"))] pub format: String,
+
+  /// Output directory
+  #[arg(long)] pub output: Option<String>
+}
+
+impl From<&DocArgs> for ProcessArgs
+{
+  fn from(args: &DocArgs) -> Self
+  {
+    Self
+    {
+      input: args.input.clone(),
+      include_flags: args.include_flags.clone(),
+      ignore_tests: args.ignore_tests
+    }
+  }
 }

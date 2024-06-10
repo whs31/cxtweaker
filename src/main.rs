@@ -17,6 +17,11 @@ fn try_main() -> anyhow::Result<()>
     Some(args::Command::Process(argv)) => {
       let parser = parser::Parser::new(argv, false, None)?;
       parser.parse(argv, algo::misc::ast_dump)?;
+    },
+    Some(args::Command::Doc(argv)) => {
+      let argv2 = args::ProcessArgs::from(argv);
+      let parser = parser::Parser::new(&argv2, false, None)?;
+      parser.parse(&argv2, algo::misc::ast_dump)?;
     }
     None => {
       return Err(anyhow::anyhow!("no command specified. see --help"));
