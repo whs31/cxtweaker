@@ -15,8 +15,8 @@ fn try_main() -> anyhow::Result<()>
 
   match &args.command {
     Some(args::Command::Process(argv)) => {
-      let parser = parser::Parser::new(argv)?;
-      parser.parse_file(Path::new(&argv.input))?;
+      let parser = parser::Parser::new(argv, false)?;
+      parser.parse(argv)?;
     }
     None => {
       return Err(anyhow::anyhow!("no command specified. see --help"));

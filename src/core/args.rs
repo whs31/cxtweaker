@@ -22,5 +22,8 @@ pub enum Command
 pub struct ProcessArgs
 {
   /// Input file or directory
-  pub input: String
+  pub input: String,
+
+  /// Additional include paths
+  #[arg(short='I', long)] pub include_flags: Option<Vec<String>>
 }

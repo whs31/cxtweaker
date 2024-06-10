@@ -207,31 +207,36 @@ impl CompileOption
 
   pub fn as_argument_array(&self, flags: CompileOptionFlags) -> Vec<String>
   {
-    let mut args = vec!["-x".to_string(), "c++".to_string()];
+    let mut args = vec!["-x".to_string(), "c++".to_string(), "-g".to_string()];
     if flags.contains(CompileOptionFlags::STANDARD) {
       args.push(format!("-std={}", self.standard));
     }
     if flags.contains(CompileOptionFlags::WARNINGS) && !self.warnings.is_empty() {
       for warn in &self.warnings {
-        args.push(format!("-W{}", warn));
+        args.push("-W".to_string());
+        args.push(warn.clone());
       }
     }
     if flags.contains(CompileOptionFlags::WARNINGS_AS_ERRORS) && self.warnings_as_errors {
-      args.push("-Werror".to_string());
+      args.push("-W".to_string());
+      args.push("error".to_string());
     }
     if flags.contains(CompileOptionFlags::DEFINITIONS) && !self.definitions.is_empty() {
       for def in &self.definitions {
-        args.push(format!("-D{}={}", def.0, def.1));
+        args.push("-D".to_string());
+        args.push(format!("{}={}", def.0, def.1));
       }
     }
     if flags.contains(CompileOptionFlags::INCLUDES) && !self.includes.is_empty() {
       for inc in &self.includes {
-        args.push(format!("-I{}", inc.display().to_string()));
+        args.push("-I".to_string());
+        args.push(format!("{}", inc.display().to_string()));
       }
     }
     if flags.contains(CompileOptionFlags::INCLUDES_SYSTEM) && !self.includes_system.is_empty() {
       for inc in &self.includes_system {
-        args.push(format!("-isystem {}", inc.display().to_string()));
+        args.push("-isystem".to_string());
+        args.push(format!("{}", inc.display().to_string()));
       }
     }
     args
@@ -276,20 +281,23 @@ mod tests
     assert_eq!(got.warnings_as_errors, true);
 
     assert_eq!(got.as_argument_array(CompileOptionFlags::ALL), [
-      "-x", "c++",
+      "-x", "c++", "-g",
       "-std=c++20",
-      "-Wall", "-Wextra", "-Wpedantic", "-Werror",
-      "-DCMAKE_PROJECT_VERSION_MAJOR=1",
-      "-DCMAKE_PROJECT_VERSION_MINOR=1",
-      "-DCMAKE_PROJECT_VERSION_PATCH=3",
-      "-DCMAKE_TARGET_NAME=floppy",
-      "-DFLOPPY_LIBRARY=1",
-      "-ID:/dev/my/floppy/build/Debug",
-      "-ID:/dev/my/floppy",
-      "-ID:/dev/my/floppy/include",
-      "-ID:/dev/my/floppy/src/c++",
-      "-isystem C:/Users/User/.conan2/p/fmtcdb79a57b9013/p/include",
-      "-isystem C:/Users/User/.conan2/p/b/winap9939095afc6a5/p/include"
+      "-W", "all",
+      "-W", "extra",
+      "-W", "pedantic",
+      "-W", "error",
+      "-D", "CMAKE_PROJECT_VERSION_MAJOR=1",
+      "-D", "CMAKE_PROJECT_VERSION_MINOR=1",
+      "-D", "CMAKE_PROJECT_VERSION_PATCH=3",
+      "-D", "CMAKE_TARGET_NAME=floppy",
+      "-D", "FLOPPY_LIBRARY=1",
+      "-I", "D:/dev/my/floppy/build/Debug",
+      "-I", "D:/dev/my/floppy",
+      "-I", "D:/dev/my/floppy/include",
+      "-I", "D:/dev/my/floppy/src/c++",
+      "-isystem", "C:/Users/User/.conan2/p/fmtcdb79a57b9013/p/include",
+      "-isystem", "C:/Users/User/.conan2/p/b/winap9939095afc6a5/p/include"
     ]);
 
     assert_eq!(got.as_argument_array(CompileOptionFlags::INCLUDES
@@ -297,19 +305,19 @@ mod tests
       | CompileOptionFlags::DEFINITIONS
       | CompileOptionFlags::STANDARD
     ), [
-      "-x", "c++",
+      "-x", "c++", "-g",
       "-std=c++20",
-      "-DCMAKE_PROJECT_VERSION_MAJOR=1",
-      "-DCMAKE_PROJECT_VERSION_MINOR=1",
-      "-DCMAKE_PROJECT_VERSION_PATCH=3",
-      "-DCMAKE_TARGET_NAME=floppy",
-      "-DFLOPPY_LIBRARY=1",
-      "-ID:/dev/my/floppy/build/Debug",
-      "-ID:/dev/my/floppy",
-      "-ID:/dev/my/floppy/include",
-      "-ID:/dev/my/floppy/src/c++",
-      "-isystem C:/Users/User/.conan2/p/fmtcdb79a57b9013/p/include",
-      "-isystem C:/Users/User/.conan2/p/b/winap9939095afc6a5/p/include"
+      "-D", "CMAKE_PROJECT_VERSION_MAJOR=1",
+      "-D", "CMAKE_PROJECT_VERSION_MINOR=1",
+      "-D", "CMAKE_PROJECT_VERSION_PATCH=3",
+      "-D", "CMAKE_TARGET_NAME=floppy",
+      "-D", "FLOPPY_LIBRARY=1",
+      "-I", "D:/dev/my/floppy/build/Debug",
+      "-I", "D:/dev/my/floppy",
+      "-I", "D:/dev/my/floppy/include",
+      "-I", "D:/dev/my/floppy/src/c++",
+      "-isystem", "C:/Users/User/.conan2/p/fmtcdb79a57b9013/p/include",
+      "-isystem", "C:/Users/User/.conan2/p/b/winap9939095afc6a5/p/include"
     ]);
 
     assert_eq!(got.as_argument_array(

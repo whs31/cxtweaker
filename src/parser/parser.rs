@@ -1,5 +1,7 @@
 use std::path::Path;
-use crate::parser::opts::{CompileOptions};
+use colored::Colorize;
+use crate::core::args::ProcessArgs;
+use crate::parser::opts::{CompileOption, CompileOptionFlags, CompileOptions};
 
 pub struct Parser
 {
@@ -9,15 +11,52 @@ pub struct Parser
 
 impl Parser
 {
-  pub fn new(args: &crate::args::ProcessArgs) -> anyhow::Result<Self>
+  pub fn new(args: &crate::args::ProcessArgs, verbose: bool) -> anyhow::Result<Self>
   {
     let clang = match clang::Clang::new() {
       Ok(c) => Box::new(c),
       Err(e) => return Err(anyhow::anyhow!("failed to initialize clang: {}", e)),
     };
     let opts = CompileOptions::from_path(Path::new(args.input.as_str()))?;
-    opts.pretty_print();
+    if verbose {
+      opts.pretty_print();
+    }
     Ok(Parser { clang, opts })
+  }
+
+  pub fn parse(&self, args: &ProcessArgs) -> anyhow::Result<()>
+  {
+    let pb = indicatif::ProgressBar::new(self.opts.options.len() as u64);
+    pb.set_style(indicatif::ProgressStyle::default_bar());
+    pb.set_draw_target(indicatif::ProgressDrawTarget::stdout_with_hz(30));
+    for opt in &self.opts.options {
+      self.parse_entry(opt, args)?;
+      pb.inc(1);
+      pb.set_message(format!("⌛ processing {}", opt.source.file_name().unwrap().to_os_string().into_string().unwrap().bold().magenta()));
+    }
+    pb.finish_with_message("☑️ processing completed!");
+    Ok(())
+  }
+
+  fn parse_entry(&self, opt: &CompileOption, args: &ProcessArgs) -> anyhow::Result<()>
+  {
+    anyhow::ensure!(opt.source.exists(), "file not found: {}", opt.source.as_path().display());
+    anyhow::ensure!(opt.source.is_file(), "not a file: {}", opt.source.as_path().display());
+
+    let index = clang::Index::new(&self.clang, false, true);
+    let mut compiler_flags = opt.as_argument_array(CompileOptionFlags::REQUIRED_FOR_INDEXING);
+    if args.include_flags.is_some() {
+      let inc_flags = args.include_flags.clone().unwrap();
+      for flag in inc_flags {
+        compiler_flags.push("-isystem".to_string());
+        compiler_flags.push(flag);
+      }
+    }
+    let tu = index
+      .parser(opt.source.as_path())
+      .arguments(&compiler_flags)
+      .parse()?;
+    Ok(())
   }
 
   pub fn parse_file(&self, filename: &Path) -> anyhow::Result<()>
