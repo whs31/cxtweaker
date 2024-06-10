@@ -1,6 +1,15 @@
 use colored::Colorize;
 use crate::core::names::{NAME, VERSION};
 
+#[macro_export]
+macro_rules! pb_print {
+  ($($arg:tt)*) => {{
+    println!();
+    print!("\x1b[A\x1b[2K\r");
+    println!("  {}", format_args!($($arg)*));
+  }}
+}
+
 pub fn print_version_and_exit() -> !
 {
   //println!("{}", ASCII_ART.yellow().bold());

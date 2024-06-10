@@ -3,6 +3,7 @@ use std::time::Duration;
 use colored::Colorize;
 use crate::core::args::ProcessArgs;
 use crate::parser::opts::{CompileOption, CompileOptionFlags, CompileOptions};
+use crate::pb_print;
 
 pub struct Parser
 {
@@ -75,28 +76,25 @@ impl Parser
       .parser(opt.source.as_path())
       .arguments(&compiler_flags)
       .parse()?;
+    let entities = self.recurse_entities_all(&tu)?;
+    pb_print!("ℹ️ {} entities found in {}",
+      entities.len().to_string().bold().bright_green(),
+      opt.source.file_name().unwrap().to_os_string().into_string().unwrap().bold().cyan()
+    );
     Ok(())
   }
 
-  pub fn parse_file(&self, filename: &Path) -> anyhow::Result<()>
+  fn recurse_entities_all<'a>(&self, translation_unit: &'a clang::TranslationUnit) -> anyhow::Result<Vec<clang::Entity<'a>>>
   {
-    // let namespaces = tu
-    //   .get_entity()
-    //   .get_children()
-    //   .into_iter()
-    //   .filter(|ent| ent.get_kind() == clang::EntityKind::Namespace)
-    //   .collect::<Vec<_>>();
-    // let fns = namespaces
-    //   .into_iter()
-    //   .flat_map(|ns| ns.get_children())
-    //   .filter(|ent| ent.get_kind() == clang::EntityKind::FunctionDecl)
-    //   .collect::<Vec<_>>();
-    // for fn_ in fns {
-    //   match fn_.get_name() {
-    //     Some(name) => println!("{}", name),
-    //     None => println!("<unnamed>"),
-    //   }
-    // }
-    Ok(())
+    self.entity_children_all(translation_unit.get_entity())
+  }
+
+  fn entity_children_all<'a>(&self, entity: clang::Entity<'a>) -> anyhow::Result<Vec<clang::Entity<'a>>>
+  {
+    let mut entities = vec![entity.clone()];
+    for child in entity.get_children() {
+      entities.append(&mut self.entity_children_all(child)?);
+    }
+    Ok(entities)
   }
 }
