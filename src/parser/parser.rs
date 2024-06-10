@@ -5,14 +5,17 @@ use crate::core::args::ProcessArgs;
 use crate::parser::opts::{CompileOption, CompileOptionFlags, CompileOptions};
 use crate::pb_print;
 
-pub struct Parser
+pub type FilterPredicate = fn(&clang::Entity) -> bool;
+
+pub struct Parser<'a>
 {
   clang: Box<clang::Clang>,
   opts: CompileOptions,
-  ignore_kind: Option<Vec<clang::EntityKind>>
+  ignore_kind: Option<Vec<clang::EntityKind>>,
+  stored_entities: Vec<clang::Entity<'a>>,
 }
 
-impl Parser
+impl Parser<'_>
 {
   pub fn new(args: &ProcessArgs, verbose: bool, ignore_kind: Option<Vec<clang::EntityKind>>) -> anyhow::Result<Self>
   {
@@ -36,11 +39,11 @@ impl Parser
     if verbose {
       opts.pretty_print();
     }
-    Ok(Parser { clang, opts, ignore_kind })
+    Ok(Parser { clang, opts, ignore_kind, stored_entities: vec![] })
   }
 
   // takes entity_fn and applies it to all found entities
-  pub fn parse(&self, args: &ProcessArgs, entity_fn: fn(&clang::Entity)) -> anyhow::Result<()>
+  pub fn parse(&mut self, args: &ProcessArgs, entity_fn: FilterPredicate) -> anyhow::Result<()>
   {
     let pb = indicatif::ProgressBar::new(self.opts.options.len() as u64)
       .with_message("⌛ processing code")
@@ -51,16 +54,17 @@ impl Parser
       );
     pb.set_draw_target(indicatif::ProgressDrawTarget::stdout_with_hz(30));
     pb.enable_steady_tick(Duration::from_millis(100));
-    for opt in &self.opts.options {
-      self.parse_entry(opt, args, entity_fn)?;
+    for opt in &self.opts.options.clone() {
+      self.parse_entry(opt, args, &entity_fn)?;
       pb.inc(1);
       pb.set_message(format!("⌛ processing {}", opt.source.file_name().unwrap().to_os_string().into_string().unwrap().bold().bright_magenta()));
     }
+    pb_print!("☑️ stored {} entities after processing all files", self.stored_entities.len().to_string().bold().green());
     pb.finish_with_message(format!("☑️ {}", String::from("processing completed!").bold().green()));
     Ok(())
   }
 
-  fn parse_entry(&self, opt: &CompileOption, args: &ProcessArgs, entity_fn: fn(&clang::Entity)) -> anyhow::Result<()>
+  fn parse_entry(&mut self, opt: &CompileOption, args: &ProcessArgs, entity_fn: &FilterPredicate) -> anyhow::Result<()>
   {
     anyhow::ensure!(opt.source.exists(), "file not found: {}", opt.source.as_path().display());
     anyhow::ensure!(opt.source.is_file(), "not a file: {}", opt.source.as_path().display());
@@ -84,7 +88,10 @@ impl Parser
       opt.source.file_name().unwrap().to_os_string().into_string().unwrap().bold().cyan()
     );
     for entity in entities {
-      entity_fn(&entity);
+      match entity_fn(&entity) {
+        true => self.stored_entities.push(entity.clone()),
+        false => ()
+      }
     }
     Ok(())
   }

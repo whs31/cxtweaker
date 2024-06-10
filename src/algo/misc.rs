@@ -1,7 +1,7 @@
 use colored::Colorize;
 use crate::pb_print;
 
-pub fn ast_dump(entity: &clang::Entity) -> ()
+pub fn ast_dump(entity: &clang::Entity) -> bool
 {
   pb_print!("  [{:^24}] {:<50} in file <{}>",
     format!("{:?}", entity.get_kind()).bold(),
@@ -18,4 +18,5 @@ pub fn ast_dump(entity: &clang::Entity) -> ()
       None => "unknown".to_string().bold().magenta().to_string()
     }
   );
+  false
 }
