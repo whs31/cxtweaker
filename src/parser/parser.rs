@@ -1,4 +1,5 @@
 use std::path::Path;
+use std::time::Duration;
 use colored::Colorize;
 use crate::core::args::ProcessArgs;
 use crate::parser::opts::{CompileOption, CompileOptionFlags, CompileOptions};
@@ -11,13 +12,25 @@ pub struct Parser
 
 impl Parser
 {
-  pub fn new(args: &crate::args::ProcessArgs, verbose: bool) -> anyhow::Result<Self>
+  pub fn new(args: &ProcessArgs, verbose: bool) -> anyhow::Result<Self>
   {
     let clang = match clang::Clang::new() {
       Ok(c) => Box::new(c),
       Err(e) => return Err(anyhow::anyhow!("failed to initialize clang: {}", e)),
     };
-    let opts = CompileOptions::from_path(Path::new(args.input.as_str()))?;
+    let mut opts = CompileOptions::from_path(Path::new(args.input.as_str()))?;
+    if args.ignore_tests {
+      let len = opts.options.len();
+      opts.options = opts
+        .options
+        .into_iter()
+        .filter(|opt| !opt.source.to_str().unwrap().contains("test"))
+        .collect();
+      println!("  ☑️ discarded {} test files ({} left)",
+        (len - opts.options.len()).to_string().bold().yellow(),
+        opts.options.len().to_string().bold().bright_blue()
+      );
+    }
     if verbose {
       opts.pretty_print();
     }
@@ -26,15 +39,21 @@ impl Parser
 
   pub fn parse(&self, args: &ProcessArgs) -> anyhow::Result<()>
   {
-    let pb = indicatif::ProgressBar::new(self.opts.options.len() as u64);
-    pb.set_style(indicatif::ProgressStyle::default_bar());
+    let pb = indicatif::ProgressBar::new(self.opts.options.len() as u64)
+      .with_message("⌛ processing code")
+      .with_style(
+        indicatif::ProgressStyle::with_template("{spinner:.cyan} {wide_msg} {human_pos:2}/{human_len:2} ({percent:3}%) [{bar:40.yellow/yellow}] [{elapsed_precise}]")
+          .unwrap()
+          .progress_chars("█▒░")
+      );
     pb.set_draw_target(indicatif::ProgressDrawTarget::stdout_with_hz(30));
+    pb.enable_steady_tick(Duration::from_millis(100));
     for opt in &self.opts.options {
       self.parse_entry(opt, args)?;
       pb.inc(1);
-      pb.set_message(format!("⌛ processing {}", opt.source.file_name().unwrap().to_os_string().into_string().unwrap().bold().magenta()));
+      pb.set_message(format!("⌛ processing {}", opt.source.file_name().unwrap().to_os_string().into_string().unwrap().bold().bright_magenta()));
     }
-    pb.finish_with_message("☑️ processing completed!");
+    pb.finish_with_message(format!("☑️ {}", String::from("processing completed!").bold().green()));
     Ok(())
   }
 
@@ -61,27 +80,6 @@ impl Parser
 
   pub fn parse_file(&self, filename: &Path) -> anyhow::Result<()>
   {
-    // anyhow::ensure!(filename.exists(), "file not found: {}", filename.display());
-    // anyhow::ensure!(filename.is_file(), "not a file: {}", filename.display());
-    //
-    //let index = clang::Index::new(&self.clang, false, true);
-    // let tu = index
-    //   .parser(filename)
-    //   .arguments(&["-x", "c++", "-std=c++20",
-    //     "-I", "D:/dev/my/floppy/include",
-    //     "-I", "C:/Users/User/.conan2/p/b/gtest0a588d0e1e330/p/include",
-    //     "-I", "C:/Users/User/.conan2/p/fmtcdb79a57b9013/p/include",
-    //     "-I", "C:/msys64/mingw64/lib/clang/18/include",
-    //     "-I", "C:/Users/User/.conan2/p/b/winap9939095afc6a5/p/include",
-    //     "-D", "CMAKE_PROJECT_VERSION_MAJOR=1",
-    //     "-D", "CMAKE_PROJECT_VERSION_MINOR=1",
-    //     "-D", "CMAKE_PROJECT_VERSION_PATCH=3",
-    //     "-D", "CMAKE_TARGET_NAME=floppy",
-    //     "-D", "FLOPPY_LIBRARY=1",
-    //     "-D", "FMT_SHARED"
-    //   ])
-    //   .parse()?;
-    //
     // let namespaces = tu
     //   .get_entity()
     //   .get_children()

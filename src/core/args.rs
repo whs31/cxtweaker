@@ -25,5 +25,8 @@ pub struct ProcessArgs
   pub input: String,
 
   /// Additional include paths
-  #[arg(short='I', long)] pub include_flags: Option<Vec<String>>
+  #[arg(short='I', long)] pub include_flags: Option<Vec<String>>,
+
+  /// Ignore tests
+  #[arg(long)] pub ignore_tests: bool
 }

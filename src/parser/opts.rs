@@ -84,7 +84,7 @@ impl CompileOptions
       options.push(CompileOption::from(&command));
     }
 
-    println!("☑️ successfully parsed {} build options", options.len().to_string().bold().yellow());
+    println!("  ☑️ successfully parsed {} build options", options.len().to_string().bold().bright_blue());
     Ok(Self { options })
   }
 
@@ -100,7 +100,7 @@ impl CompileOptions
     anyhow::ensure!(path.exists(), "file not found: {}", path.display());
     anyhow::ensure!(path.is_file(), "not a file: {}", path.display());
 
-    println!("☑️ parsing build options: {}", path.display().to_string().bold().cyan());
+    println!("  ☑️ parsing build options: {}", path.display().to_string().bold().cyan());
     let contents = std::fs::read_to_string(path)?;
     Self::from_string(&contents)
   }
