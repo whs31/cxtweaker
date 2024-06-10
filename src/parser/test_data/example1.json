@@ -1,0 +1,44 @@
+[
+{
+  "directory": "D:/dev/my/floppy/build/Debug",
+  "command": "C:\\msys64\\mingw64\\bin\\c++.exe -DCMAKE_PROJECT_VERSION_MAJOR=1 -DCMAKE_PROJECT_VERSION_MINOR=1 -DCMAKE_PROJECT_VERSION_PATCH=3 -DCMAKE_TARGET_NAME=floppy -DFLOPPY_LIBRARY=1 -DFMT_SHARED -Dfloppy_EXPORTS -ID:/dev/my/floppy/build/Debug -ID:/dev/my/floppy -ID:/dev/my/floppy/include -ID:/dev/my/floppy/src/c++ -isystem C:/Users/User/.conan2/p/fmtcdb79a57b9013/p/include -isystem C:/Users/User/.conan2/p/b/winap9939095afc6a5/p/include -m64 -g -std=c++20 -fdiagnostics-color=always -Wall -Wextra -Wpedantic -Werror -o CMakeFiles\\floppy.dir\\src\\detail\\rtti.cc.obj -c D:\\dev\\my\\floppy\\src\\detail\\rtti.cc",
+  "file": "D:\\dev\\my\\floppy\\src\\detail\\rtti.cc",
+  "output": "CMakeFiles\\floppy.dir\\src\\detail\\rtti.cc.obj"
+},
+{
+  "directory": "D:/dev/my/floppy/build/Debug",
+  "command": "C:\\msys64\\mingw64\\bin\\c++.exe -DCMAKE_PROJECT_VERSION_MAJOR=1 -DCMAKE_PROJECT_VERSION_MINOR=1 -DCMAKE_PROJECT_VERSION_PATCH=3 -DCMAKE_TARGET_NAME=floppy -DFLOPPY_LIBRARY=1 -DFMT_SHARED -Dfloppy_EXPORTS -ID:/dev/my/floppy/build/Debug -ID:/dev/my/floppy -ID:/dev/my/floppy/include -ID:/dev/my/floppy/src/c++ -isystem C:/Users/User/.conan2/p/fmtcdb79a57b9013/p/include -isystem C:/Users/User/.conan2/p/b/winap9939095afc6a5/p/include -m64 -g -std=c++20 -fdiagnostics-color=always -Wall -Wextra -Wpedantic -Werror -o CMakeFiles\\floppy.dir\\src\\directories.cc.obj -c D:\\dev\\my\\floppy\\src\\directories.cc",
+  "file": "D:\\dev\\my\\floppy\\src\\directories.cc",
+  "output": "CMakeFiles\\floppy.dir\\src\\directories.cc.obj"
+},
+{
+  "directory": "D:/dev/my/floppy/build/Debug",
+  "command": "C:\\msys64\\mingw64\\bin\\c++.exe -DCMAKE_PROJECT_VERSION_MAJOR=1 -DCMAKE_PROJECT_VERSION_MINOR=1 -DCMAKE_PROJECT_VERSION_PATCH=3 -DCMAKE_TARGET_NAME=floppy -DFLOPPY_LIBRARY=1 -DFMT_SHARED -ID:/dev/my/floppy/build/Debug/tests -ID:/dev/my/floppy/tests -ID:/dev/my/floppy/include -isystem C:/Users/User/.conan2/p/b/gtest0a588d0e1e330/p/include -isystem C:/Users/User/.conan2/p/fmtcdb79a57b9013/p/include -m64 -g -std=c++20 -fdiagnostics-color=always -o tests\\CMakeFiles\\floppy-test.dir\\test_corefn.cc.obj -c D:\\dev\\my\\floppy\\tests\\test_corefn.cc",
+  "file": "D:\\dev\\my\\floppy\\tests\\test_corefn.cc",
+  "output": "tests\\CMakeFiles\\floppy-test.dir\\test_corefn.cc.obj"
+},
+{
+  "directory": "D:/dev/my/floppy/build/Debug",
+  "command": "C:\\msys64\\mingw64\\bin\\c++.exe -DCMAKE_PROJECT_VERSION_MAJOR=1 -DCMAKE_PROJECT_VERSION_MINOR=1 -DCMAKE_PROJECT_VERSION_PATCH=3 -DCMAKE_TARGET_NAME=floppy -DFLOPPY_LIBRARY=1 -DFMT_SHARED -ID:/dev/my/floppy/build/Debug/tests -ID:/dev/my/floppy/tests -ID:/dev/my/floppy/include -isystem C:/Users/User/.conan2/p/b/gtest0a588d0e1e330/p/include -isystem C:/Users/User/.conan2/p/fmtcdb79a57b9013/p/include -m64 -g -std=c++20 -fdiagnostics-color=always -o tests\\CMakeFiles\\floppy-test.dir\\test_directories.cc.obj -c D:\\dev\\my\\floppy\\tests\\test_directories.cc",
+  "file": "D:\\dev\\my\\floppy\\tests\\test_directories.cc",
+  "output": "tests\\CMakeFiles\\floppy-test.dir\\test_directories.cc.obj"
+},
+{
+  "directory": "D:/dev/my/floppy/build/Debug",
+  "command": "C:\\msys64\\mingw64\\bin\\c++.exe -DCMAKE_PROJECT_VERSION_MAJOR=1 -DCMAKE_PROJECT_VERSION_MINOR=1 -DCMAKE_PROJECT_VERSION_PATCH=3 -DCMAKE_TARGET_NAME=floppy -DFLOPPY_LIBRARY=1 -DFMT_SHARED -ID:/dev/my/floppy/build/Debug/tests -ID:/dev/my/floppy/tests -ID:/dev/my/floppy/include -isystem C:/Users/User/.conan2/p/b/gtest0a588d0e1e330/p/include -isystem C:/Users/User/.conan2/p/fmtcdb79a57b9013/p/include -m64 -g -std=c++20 -fdiagnostics-color=always -o tests\\CMakeFiles\\floppy-test.dir\\test_main.cc.obj -c D:\\dev\\my\\floppy\\tests\\test_main.cc",
+  "file": "D:\\dev\\my\\floppy\\tests\\test_main.cc",
+  "output": "tests\\CMakeFiles\\floppy-test.dir\\test_main.cc.obj"
+},
+{
+  "directory": "D:/dev/my/floppy/build/Debug",
+  "command": "C:\\msys64\\mingw64\\bin\\c++.exe -DCMAKE_PROJECT_VERSION_MAJOR=1 -DCMAKE_PROJECT_VERSION_MINOR=1 -DCMAKE_PROJECT_VERSION_PATCH=3 -DCMAKE_TARGET_NAME=floppy -DFLOPPY_LIBRARY=1 -DFMT_SHARED -ID:/dev/my/floppy/build/Debug/tests -ID:/dev/my/floppy/tests -ID:/dev/my/floppy/include -isystem C:/Users/User/.conan2/p/b/gtest0a588d0e1e330/p/include -isystem C:/Users/User/.conan2/p/fmtcdb79a57b9013/p/include -m64 -g -std=c++20 -fdiagnostics-color=always -o tests\\CMakeFiles\\floppy-test.dir\\test_print_helpers.cc.obj -c D:\\dev\\my\\floppy\\tests\\test_print_helpers.cc",
+  "file": "D:\\dev\\my\\floppy\\tests\\test_print_helpers.cc",
+  "output": "tests\\CMakeFiles\\floppy-test.dir\\test_print_helpers.cc.obj"
+},
+{
+  "directory": "D:/dev/my/floppy/build/Debug",
+  "command": "C:\\msys64\\mingw64\\bin\\c++.exe -DCMAKE_PROJECT_VERSION_MAJOR=1 -DCMAKE_PROJECT_VERSION_MINOR=1 -DCMAKE_PROJECT_VERSION_PATCH=3 -DCMAKE_TARGET_NAME=floppy -DFLOPPY_LIBRARY=1 -DFMT_SHARED -ID:/dev/my/floppy/build/Debug/tests -ID:/dev/my/floppy/tests -ID:/dev/my/floppy/include -isystem C:/Users/User/.conan2/p/b/gtest0a588d0e1e330/p/include -isystem C:/Users/User/.conan2/p/fmtcdb79a57b9013/p/include -m64 -g -std=c++20 -fdiagnostics-color=always -o tests\\CMakeFiles\\floppy-test.dir\\test_traits.cc.obj -c D:\\dev\\my\\floppy\\tests\\test_traits.cc",
+  "file": "D:\\dev\\my\\floppy\\tests\\test_traits.cc",
+  "output": "tests\\CMakeFiles\\floppy-test.dir\\test_traits.cc.obj"
+}
+]

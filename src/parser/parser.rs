@@ -1,5 +1,5 @@
 use std::path::Path;
-use crate::parser::opts::{CompileOption, CompileOptions};
+use crate::parser::opts::{CompileOptions};
 
 pub struct Parser
 {
@@ -15,10 +15,9 @@ impl Parser
       Ok(c) => Box::new(c),
       Err(e) => return Err(anyhow::anyhow!("failed to initialize clang: {}", e)),
     };
-    Ok(Parser {
-      clang,
-      opts: CompileOptions::from_path(Path::new(args.input.as_str()))?
-    })
+    let opts = CompileOptions::from_path(Path::new(args.input.as_str()))?;
+    opts.pretty_print();
+    Ok(Parser { clang, opts })
   }
 
   pub fn parse_file(&self, filename: &Path) -> anyhow::Result<()>
